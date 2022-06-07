@@ -1,0 +1,82 @@
+# watch changes on our kubernetees config files
+# so we don't have to run 'kubectl apply...' and 'kubectl rollout restart deployment ....' manually
+# it also deletes all objects inside kubernetees cluster (services, pods, etc) when we stop skaffold
+apiVersion: skaffold/v2alpha3
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - ./infra/k8s/*
+build:
+  local:
+    # don't push to DockerHub
+    push: false
+  artifacts:
+    - image: udemy_microservices/ticketing/auth
+      # our local directory
+      context: auth
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # if smth changes in code, skaffold will directly 'throw'  a file(s) inside our pod
+          # if we made change to a file that doesn't match this regex (for ex. installed new dependency)
+          # scaffold may completely rebuild image and throw into cluster
+          - src: "src/**/*.ts"
+            dest: .
+    - image: udemy_microservices/ticketing/tickets
+      # our local directory
+      context: tickets
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # if smth changes in code, skaffold will directly 'throw'  a file(s) inside our pod
+          # if we made change to a file that doesn't match this regex (for ex. installed new dependency)
+          # scaffold may completely rebuild image and throw into cluster
+          - src: "src/**/*.ts"
+            dest: .
+    - image: udemy_microservices/ticketing/orders
+      # our local directory
+      context: orders
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # if smth changes in code, skaffold will directly 'throw'  a file(s) inside our pod
+          # if we made change to a file that doesn't match this regex (for ex. installed new dependency)
+          # scaffold may completely rebuild image and throw into cluster
+          - src: "src/**/*.ts"
+            dest: .
+    - image: udemy_microservices/ticketing/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+    - image: udemy_microservices/ticketing/expiration
+      # our local directory
+      context: expiration
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # if smth changes in code, skaffold will directly 'throw'  a file(s) inside our pod
+          # if we made change to a file that doesn't match this regex (for ex. installed new dependency)
+          # scaffold may completely rebuild image and throw into cluster
+          - src: "src/**/*.ts"
+            dest: .
+    - image: udemy_microservices/ticketing/payments
+      # our local directory
+      context: payments
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # if smth changes in code, skaffold will directly 'throw'  a file(s) inside our pod
+          # if we made change to a file that doesn't match this regex (for ex. installed new dependency)
+          # scaffold may completely rebuild image and throw into cluster
+          - src: "src/**/*.ts"
+            dest: .

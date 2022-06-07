@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  # post image template (same as creating a standalone pod)
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: udemy_microservices/ticketing/auth
+          imagePullPolicy: Never
+          env:
+            - name: MONGO_URI
+              value: 'mongodb://auth-mongo-srv:27017/auth'
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+---
+# create clusterIP service to make communication between pods
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-clusterip-srv
+spec:
+  # this is default type, can be ommitted 
+  type: ClusterIP
+  selector:
+    app: auth
+  ports:
+    # this name can be any
+    - name: auth
+      protocol: TCP
+      port: 3000
+      targetPort: 3000          

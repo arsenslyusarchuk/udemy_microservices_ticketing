@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders
+  template:
+    metadata:
+      labels:
+        app: orders
+    spec:
+      containers:
+        - name: orders
+          image: udemy_microservices/ticketing/orders
+          imagePullPolicy: Never
+          env:
+            - name: NATS_URL
+              value: 'http://nats-srv:4222'
+            - name: NATS_CLUSTER_ID
+              value: 'ticketing'
+            # to generate cliend id the same as our pod name
+            # this will help us to read the logs of NATS
+            # if we scale our ticketing service to multiple instances
+            - name: NATS_CLIENT_ID
+              valueFrom: 
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MONGO_URI
+              value: 'mongodb://orders-mongo-srv:27017/orders'
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+---
+# create clusterIP service to make communication between pods
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-clusterip-srv
+spec:
+  # this is default type, can be ommitted 
+  type: ClusterIP
+  selector:
+    app: orders
+  ports:
+    # this name can be any
+    - name: orders
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
