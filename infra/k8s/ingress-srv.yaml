@@ -13,7 +13,7 @@ spec:
   rules:
     # we can host multiple apps w/ different domains inside 1 kubernetees cluster
     # but because we're running everything locally
-    # we should change /etc/hosts to to redirect any connection to 'localhost' to 'posts.com'
+    # we should change /etc/hosts to to redirect any connection to 'localhost' to 'ticketing.dev'
     - host: ticketing.dev
       http:
         paths:
